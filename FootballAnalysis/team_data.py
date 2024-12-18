@@ -3,6 +3,16 @@ from bs4 import BeautifulSoup
 import os
 
 def fetch_team_data(team):
+    """
+    Fetch team data from the specified website.
+
+    Parameters:
+    - team (str): The name of the team to fetch data for.
+
+    Returns:
+    - tuple: A tuple containing the number of wins, total goals scored, and the last match score.
+    - None: If no data is available for the team.
+    """
     clear_screen()
     url = f"https://www.sporx.com/{team}-fiksturu-ve-mac-sonuclari"
     response = requests.get(url)
@@ -45,6 +55,17 @@ def fetch_team_data(team):
         return win_count, total_goals, last_match_score
 
 def fetch_last_match_data(team, match_count):
+    """
+    Fetch the results of the last N matches for a given team.
+
+    Parameters:
+    - team (str): The name of the team.
+    - match_count (int): Number of matches to fetch.
+
+    Returns:
+    - list: A list of goal counts for the last N matches.
+    - None: If no match data is found.
+    """
     url = f"https://www.sporx.com/{team}-fiksturu-ve-mac-sonuclari"
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -71,10 +92,10 @@ def fetch_last_match_data(team, match_count):
                 away_team = match.find("td", class_="text-end w-25").find("a").get_text(strip=True)
 
                 if team.lower() == replace_turkish_characters(home_team.lower()):
-                    last_match_goal_counts.append(home_goals)  # Add to the end
+                    last_match_goal_counts.append(home_goals)
                     match_counter += 1
                 elif team.lower() == replace_turkish_characters(away_team.lower()):
-                    last_match_goal_counts.append(away_goals)  # Add to the end
+                    last_match_goal_counts.append(away_goals)
                     match_counter += 1
 
                 if match_counter >= match_count:
@@ -86,13 +107,23 @@ def fetch_last_match_data(team, match_count):
         return None
 
 def clear_screen():
+    """Clear the console screen."""
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def replace_turkish_characters(team_name):
-    team_name = team_name.replace("ı", "i")
-    team_name = team_name.replace("ç", "c")
-    team_name = team_name.replace("ş", "s")
-    team_name = team_name.replace("ğ", "g")
-    team_name = team_name.replace("ü", "u")
-    team_name = team_name.replace("ö", "o")
-    return team_name.replace(" ", "-")  # Replace spaces with '-'
+    """
+    Replace Turkish characters in a team name with their English equivalents.
+
+    Parameters:
+    - team_name (str): Team name containing Turkish characters.
+
+    Returns:
+    - str: Team name with Turkish characters replaced.
+    """
+    replacements = {
+        "ı": "i", "ç": "c", "ş": "s", "ğ": "g",
+        "ü": "u", "ö": "o", " ": "-"
+    }
+    for turkish, english in replacements.items():
+        team_name = team_name.replace(turkish, english)
+    return team_name
